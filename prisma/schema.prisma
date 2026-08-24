@@ -13,6 +13,12 @@ enum Role {
   ADMIN
 }
 
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -26,13 +32,14 @@ model User {
 }
 
 model Customer {
-  id      String  @id @default(cuid())
-  userId  String  @unique
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  address String?
-  city    String?
-  lat     Float?
-  lng     Float?
+  id       String    @id @default(cuid())
+  userId   String    @unique
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address  String?
+  city     String?
+  lat      Float?
+  lng      Float?
+  payments Payment[]
 }
 
 model Service {
@@ -42,4 +49,14 @@ model Service {
   category    String
   basePrice   Float
   durationMin Int
+}
+
+model Payment {
+  id         String        @id @default(cuid())
+  customerId String
+  customer   Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  amount     Float
+  status     PaymentStatus @default(UNPAID)
+  method     String?
+  paidAt     DateTime?
 }
