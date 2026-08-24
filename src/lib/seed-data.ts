@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 export async function seedIfEmpty() {
-  const existing = await prisma.user.count();
+  const existing = await prisma.service.count();
   if (existing > 0) return;
   const password = await bcrypt.hash("ride1234", 10);
   await prisma.user.create({
@@ -23,5 +23,12 @@ export async function seedIfEmpty() {
         },
       },
     },
+  });
+  await prisma.service.createMany({
+    data: [
+      { name: "Basic Tune-Up", description: "Gears, brakes, bolts, and a safety check.", category: "Maintenance", basePrice: 49, durationMin: 60 },
+      { name: "Full Service", description: "Drivetrain clean, bearing check, and wheel true.", category: "Maintenance", basePrice: 129, durationMin: 150 },
+      { name: "Flat Repair", description: "Tube or tubeless plug and inflate to spec.", category: "Repair", basePrice: 25, durationMin: 30 },
+    ],
   });
 }

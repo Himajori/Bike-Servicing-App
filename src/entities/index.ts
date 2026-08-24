@@ -1,3 +1,3 @@
-/** Customer backend entities. */
 export * from "./user";
 export * from "./customer";
+export * from "./service";

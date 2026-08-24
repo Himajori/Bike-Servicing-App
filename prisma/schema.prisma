@@ -34,3 +34,12 @@ model Customer {
   lat     Float?
   lng     Float?
 }
+
+model Service {
+  id          String @id @default(cuid())
+  name        String
+  description String
+  category    String
+  basePrice   Float
+  durationMin Int
+}
