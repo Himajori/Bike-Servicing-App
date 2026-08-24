@@ -1,3 +1,9 @@
+// RideReady SQL schema
+// User ──┬── Customer
+//        ├── Mechanic
+//        └── Admin
+// Switch provider to "mysql" and use prisma/mysql-schema.sql for phpMyAdmin.
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,6 +19,22 @@ enum Role {
   ADMIN
 }
 
+enum ServiceMode {
+  DOORSTEP
+  PICKUP_DROP
+}
+
+enum BookingStatus {
+  REQUESTED
+  CONFIRMED
+  MECHANIC_ASSIGNED
+  EN_ROUTE
+  IN_PROGRESS
+  READY
+  COMPLETED
+  CANCELLED
+}
+
 enum PaymentStatus {
   UNPAID
   PAID
@@ -20,33 +42,69 @@ enum PaymentStatus {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
+  id        String   @id @default(cuid())
+  email     String   @unique
   password  String
   name      String
   phone     String?
   role      Role
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  customer  Customer?
-  admin     Admin?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer Customer?
+  mechanic Mechanic?
+  admin    Admin?
 }
 
 model Customer {
-  id       String    @id @default(cuid())
-  userId   String    @unique
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  address  String?
-  city     String?
-  lat      Float?
-  lng      Float?
+  id      String  @id @default(cuid())
+  userId  String  @unique
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address String?
+  city    String?
+  lat     Float?
+  lng     Float?
+
+  bikes    Bike[]
+  bookings Booking[]
+  reviews  Review[]
   payments Payment[]
+}
+
+model Mechanic {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty       String?
+  experienceYears Int     @default(0)
+  rating          Float   @default(0)
+  reviewCount     Int     @default(0)
+  lat             Float?
+  lng             Float?
+  available       Boolean @default(true)
+
+  bookings Booking[]
+  reviews  Review[]
 }
 
 model Admin {
   id     String @id @default(cuid())
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Bike {
+  id           String   @id @default(cuid())
+  customerId   String
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  brand        String
+  model        String
+  year         Int?
+  registration String?
+  color        String?
+  createdAt    DateTime @default(now())
+
+  bookings Booking[]
 }
 
 model Service {
@@ -56,14 +114,65 @@ model Service {
   category    String
   basePrice   Float
   durationMin Int
+
+  bookings Booking[]
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  customerId     String
+  customer       Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  mechanicId     String?
+  mechanic       Mechanic?     @relation(fields: [mechanicId], references: [id])
+  bikeId         String
+  bike           Bike          @relation(fields: [bikeId], references: [id])
+  serviceId      String
+  service        Service       @relation(fields: [serviceId], references: [id])
+  mode           ServiceMode
+  scheduledAt    DateTime
+  status         BookingStatus @default(REQUESTED)
+  address        String
+  lat            Float?
+  lng            Float?
+  estimatedPrice Float
+  notes          String?
+  createdAt      DateTime      @default(now())
+
+  payment    Payment?
+  review     Review?
+  statusLogs StatusLog[]
+}
+
+model StatusLog {
+  id        String        @id @default(cuid())
+  bookingId String
+  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  status    BookingStatus
+  note      String?
+  createdAt DateTime      @default(now())
 }
 
 model Payment {
   id         String        @id @default(cuid())
+  bookingId  String        @unique
+  booking    Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   customerId String
   customer   Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
   amount     Float
   status     PaymentStatus @default(UNPAID)
   method     String?
   paidAt     DateTime?
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  bookingId  String   @unique
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  mechanicId String
+  mechanic   Mechanic @relation(fields: [mechanicId], references: [id])
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
 }
