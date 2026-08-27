@@ -81,6 +81,24 @@ export async function requireCustomer() {
   return { session, error: null };
 }
 
+export async function requireMechanic() {
+  await db();
+  const session = await getSession();
+  if (!session || session.role !== "MECHANIC" || !session.mechanicId) {
+    return { session: null as SessionUser | null, error: "Sign in as a mechanic to continue." };
+  }
+  return { session, error: null };
+}
+
+export async function requireAdmin() {
+  await db();
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN" || !session.adminId) {
+    return { session: null as SessionUser | null, error: "Sign in as an admin to continue." };
+  }
+  return { session, error: null };
+}
+
 export async function toSessionUser(userId: string): Promise<SessionUser | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },

@@ -58,11 +58,6 @@ export async function POST(request: Request) {
   if (!service) return NextResponse.json({ error: "That service is not available." }, { status: 404 });
   if (!bike) return NextResponse.json({ error: "Add or choose one of your bikes." }, { status: 400 });
 
-  const mechanic = await prisma.mechanic.findFirst({
-    where: { available: true },
-    orderBy: { rating: "desc" },
-  });
-
   const price = estimatePrice({
     basePrice: service.basePrice,
     mode: parsed.data.mode,
@@ -72,12 +67,12 @@ export async function POST(request: Request) {
   const booking = await prisma.booking.create({
     data: {
       customerId: session.customerId!,
-      mechanicId: mechanic?.id ?? null,
+      mechanicId: null,
       bikeId: bike.id,
       serviceId: service.id,
       mode: parsed.data.mode,
       scheduledAt,
-      status: mechanic ? "MECHANIC_ASSIGNED" : "REQUESTED",
+      status: "REQUESTED",
       address: parsed.data.address.trim(),
       lat: parsed.data.lat ?? null,
       lng: parsed.data.lng ?? null,
@@ -87,22 +82,18 @@ export async function POST(request: Request) {
         create: { customerId: session.customerId!, amount: price.total, status: "UNPAID" },
       },
       statusLogs: {
-        create: [
-          { status: "REQUESTED", note: statusNote("REQUESTED", parsed.data.mode) },
-          { status: "CONFIRMED", note: statusNote("CONFIRMED", parsed.data.mode) },
-          ...(mechanic
-            ? [
-                {
-                  status: "MECHANIC_ASSIGNED" as const,
-                  note: `${mechanic ? "A mechanic" : "A mechanic"} is assigned to your bike.`,
-                },
-              ]
-            : []),
-        ],
+        create: [{ status: "REQUESTED", note: statusNote("REQUESTED", parsed.data.mode) }],
       },
     },
     include: bookingInclude,
   });
+
+  const { notify } = await import("@/lib/notify");
+  await notify(session.id, "Booking created", `${service.name} is booked.`);
+  const pool = await prisma.mechanic.findMany({ include: { user: true } });
+  for (const m of pool) {
+    await notify(m.userId, "New service request", `${service.name} from ${session.name}.`);
+  }
 
   return NextResponse.json({ booking, price });
 }

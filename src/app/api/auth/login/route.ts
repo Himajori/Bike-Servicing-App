@@ -22,9 +22,6 @@ export async function POST(request: Request) {
   if (!user || !(await verifyPassword(parsed.data.password, user.password))) {
     return NextResponse.json({ error: "Those details do not match an account." }, { status: 401 });
   }
-  if (user.role !== "CUSTOMER") {
-    return NextResponse.json({ error: "This app is for bike owners. Use a customer account." }, { status: 403 });
-  }
 
   const session = await toSessionUser(user.id);
   if (!session) {

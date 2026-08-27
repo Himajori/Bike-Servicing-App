@@ -86,9 +86,17 @@ npm run dev
 
 Open [http://127.0.0.1:43217](http://127.0.0.1:43217).
 
-Demo customer: `alex@rideready.test` / `ride1234`
+Demo password for all roles: `ride1234`
 
-Optional: set `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` for Google Maps. Without a key, the Austin service-area map is used.
+| Role | Email | Open after login |
+| --- | --- | --- |
+| Customer | alex@rideready.test | `/home` |
+| Mechanic | maya@rideready.test | `/mechanic` |
+| Admin | admin@rideready.test | `/admin` |
+
+GitHub: [https://github.com/Himajori/Bike-Servicing-App](https://github.com/Himajori/Bike-Servicing-App)
+
+The 17-step plan is in [docs/DEVELOPMENT-STEPS.md](docs/DEVELOPMENT-STEPS.md). UI reference: [docs/design-bikeservice.png](docs/design-bikeservice.png).
 
 ## Get this repository (Windows)
 
@@ -117,12 +125,6 @@ Origin CLI docs: [https://cursor.com/docs/origin/cli](https://cursor.com/docs/or
 
 Visibility is **private**. You can change it in settings on the [codebase page](https://cursor.com/codebase/jorgen-hima/bike-service-manager).
 
-## Commit history (how this repo was built)
+## 17-step build
 
-1. Customer backend (User, Customer, auth APIs)
-2. Services catalog backend
-3. Payment entity
-4. Admin entity (for later)
-5. Bike, booking, and review backend
-6. Customer frontend, API wiring, Next.js server
-7. README and screenshots
+See [docs/DEVELOPMENT-STEPS.md](docs/DEVELOPMENT-STEPS.md) for requirements through admin dashboard (steps 1–17).

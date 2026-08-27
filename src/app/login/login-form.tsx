@@ -9,6 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 
+function homeFor(role: string, next: string | null) {
+  if (next) return next;
+  if (role === "MECHANIC") return "/mechanic";
+  if (role === "ADMIN") return "/admin";
+  return "/home";
+}
+
 export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -21,14 +28,14 @@ export function LoginForm() {
     setPending(true);
     const form = new FormData(event.currentTarget);
     try {
-      await api("/api/auth/login", {
+      const result = await api<{ role: string }>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({
           email: form.get("email"),
           password: form.get("password"),
         }),
       });
-      router.push(params.get("next") || "/home");
+      router.push(homeFor(result.role, params.get("next")));
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not log in.");
@@ -40,10 +47,10 @@ export function LoginForm() {
   return (
     <PhoneShell>
       <main className="flex flex-1 flex-col px-5 py-10">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">BikeApp</p>
+        <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">BikeService</p>
         <h1 className="font-heading mt-2 text-3xl">Welcome back</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Log in to book, track, and pay for bike service.
+          Customer, mechanic, or admin — use the matching account.
         </p>
 
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
@@ -62,10 +69,11 @@ export function LoginForm() {
         </form>
 
         <p className="mt-6 text-sm text-muted-foreground">
-          Demo account is prefilled: alex@rideready.test / ride1234
+          Customer alex@rideready.test · Mechanic maya@rideready.test · Admin admin@rideready.test ·
+          password ride1234
         </p>
         <p className="mt-4 text-sm">
-          New here?{" "}
+          New bike owner?{" "}
           <Link href="/register" className="font-medium text-primary underline-offset-2 hover:underline">
             Create an account
           </Link>

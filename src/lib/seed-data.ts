@@ -6,8 +6,17 @@ const DEMO_PASSWORD = "ride1234";
 
 export async function seedIfEmpty() {
   const existing = await prisma.service.count();
-  if (existing > 0) return;
-  await seedDatabase();
+  if (existing === 0) await seedDatabase();
+  if ((await prisma.inventoryItem.count()) === 0) {
+    await prisma.inventoryItem.createMany({
+      data: [
+        { name: "Engine oil 10W-40", sku: "OIL-10W40", quantity: 24, unitPrice: 12.5 },
+        { name: "Brake pads (pair)", sku: "BRK-PAD", quantity: 16, unitPrice: 28 },
+        { name: "Inner tube 700x28", sku: "TUBE-700", quantity: 40, unitPrice: 8 },
+        { name: "Chain lube", sku: "LUBE-01", quantity: 18, unitPrice: 9 },
+      ],
+    });
+  }
 }
 
 export async function seedDatabase() {
@@ -15,6 +24,13 @@ export async function seedDatabase() {
 
   const services = await Promise.all(
     [
+      {
+        name: "Oil Change",
+        description: "Engine oil and filter swap with a leak check.",
+        category: "Maintenance",
+        basePrice: 35,
+        durationMin: 30,
+      },
       {
         name: "Basic Tune-Up",
         description: "Gears, brakes, bolts, and a safety check. The everyday reset.",
@@ -294,6 +310,30 @@ export async function seedDatabase() {
         ],
       },
     },
+  });
+
+  await prisma.inventoryItem.createMany({
+    data: [
+      { name: "Engine oil 10W-40", sku: "OIL-10W40", quantity: 24, unitPrice: 12.5 },
+      { name: "Brake pads (pair)", sku: "BRK-PAD", quantity: 16, unitPrice: 28 },
+      { name: "Inner tube 700x28", sku: "TUBE-700", quantity: 40, unitPrice: 8 },
+      { name: "Chain lube", sku: "LUBE-01", quantity: 18, unitPrice: 9 },
+    ],
+  });
+
+  await prisma.notification.createMany({
+    data: [
+      {
+        userId: alex.id,
+        title: "Mechanic on the way",
+        body: "Maya Chen is heading to East 6th for your Full Service.",
+      },
+      {
+        userId: maya.id,
+        title: "New doorstep job",
+        body: "Full Service on a Trek Domane AL 4.",
+      },
+    ],
   });
 }
 
