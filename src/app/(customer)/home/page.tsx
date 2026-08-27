@@ -21,9 +21,25 @@ type BookingRow = {
   bike: { brand: string; model: string };
 };
 
+type BikeRow = {
+  id: string;
+  brand: string;
+  model: string;
+  year: number | null;
+  color: string | null;
+};
+
+type ServiceRow = {
+  id: string;
+  name: string;
+  category: string;
+  basePrice: number;
+};
+
 export default function HomePage() {
   const [user, setUser] = useState<SessionUser | null>(null);
-  const [bikes, setBikes] = useState<number>(0);
+  const [garage, setGarage] = useState<BikeRow[]>([]);
+  const [services, setServices] = useState<ServiceRow[]>([]);
   const [active, setActive] = useState<BookingRow | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,13 +48,15 @@ export default function HomePage() {
     let alive = true;
     Promise.all([
       api<{ user: SessionUser }>("/api/auth/me"),
-      api<{ bikes: unknown[] }>("/api/bikes"),
+      api<{ bikes: BikeRow[] }>("/api/bikes"),
       api<{ bookings: BookingRow[] }>("/api/bookings"),
+      api<{ services: ServiceRow[] }>("/api/services"),
     ])
-      .then(([me, bikeData, bookingData]) => {
+      .then(([me, bikeData, bookingData, serviceData]) => {
         if (!alive) return;
         setUser(me.user);
-        setBikes(bikeData.bikes.length);
+        setGarage(bikeData.bikes);
+        setServices(serviceData.services.slice(0, 4));
         const open = bookingData.bookings.find(
           (b) => !["COMPLETED", "CANCELLED"].includes(b.status),
         );
@@ -125,17 +143,66 @@ export default function HomePage() {
         )}
       </section>
 
-      <section className="mt-6 grid grid-cols-2 gap-3">
-        <Link href="/bikes" className="rounded-2xl border bg-card p-4">
-          <Bike className="size-5 text-primary" />
-          <p className="mt-3 text-2xl font-semibold">{loading ? "—" : bikes}</p>
-          <p className="text-sm text-muted-foreground">Bikes in the garage</p>
-        </Link>
-        <Link href="/bookings" className="rounded-2xl border bg-card p-4">
-          <Clock3 className="size-5 text-primary" />
-          <p className="mt-3 text-2xl font-semibold">Track</p>
-          <p className="text-sm text-muted-foreground">Payments & reviews</p>
-        </Link>
+      <section className="mt-6">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-medium">Your bikes</h2>
+          <Link href="/bikes" className="text-sm text-primary">
+            Manage
+          </Link>
+        </div>
+        {loading ? (
+          <div className="h-24 animate-pulse rounded-2xl bg-muted" />
+        ) : garage.length === 0 ? (
+          <EmptyState
+            title="No bikes yet"
+            body="Add a bike so we can price and schedule the job."
+            action={
+              <Button render={<Link href="/bikes" />} variant="outline">
+                Add a bike
+              </Button>
+            }
+          />
+        ) : (
+          <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
+            {garage.map((bike) => (
+              <Link
+                key={bike.id}
+                href="/bikes"
+                className="min-w-[16rem] rounded-2xl border bg-card p-4"
+              >
+                <Bike className="size-5 text-primary" />
+                <p className="mt-3 font-medium">
+                  {bike.brand} {bike.model}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {[bike.year, bike.color].filter(Boolean).join(" · ") || "Ready for service"}
+                </p>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="mt-6">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-medium">Popular services</h2>
+          <Link href="/services" className="text-sm text-primary">
+            All
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {services.map((service) => (
+            <Link
+              key={service.id}
+              href={`/book/${service.id}`}
+              className="rounded-2xl border bg-card p-4"
+            >
+              <p className="text-xs text-muted-foreground">{service.category}</p>
+              <p className="mt-1 font-medium">{service.name}</p>
+              <p className="mt-2 text-sm font-semibold">{formatMoney(service.basePrice)}</p>
+            </Link>
+          ))}
+        </div>
       </section>
     </main>
   );

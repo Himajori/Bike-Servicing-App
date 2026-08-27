@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const items = [
   { href: "/mechanic", label: "Jobs", icon: Briefcase },
   { href: "/mechanic/earnings", label: "Earnings", icon: Wallet },
-  { href: "/account", label: "You", icon: UserRound },
+  { href: "/mechanic/you", label: "You", icon: UserRound },
 ];
 
 export function MechanicNav() {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { formatMoney } from "@/lib/pricing";
+import { NotificationInbox } from "@/components/notification-inbox";
 
 type Stats = {
   totalUsers: number;
@@ -83,6 +84,13 @@ export default function AdminHome() {
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+      <section className="mt-8">
+        <h2 className="font-medium">Alerts</h2>
+        <p className="mt-1 text-sm text-muted-foreground">In-app notifications for this admin account.</p>
+        <div className="mt-3">
+          <NotificationInbox />
         </div>
       </section>
     </main>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NotificationInbox } from "@/components/notification-inbox";
 import { api } from "@/lib/api";
 import type { SessionUser } from "@/lib/auth";
 
@@ -94,6 +95,16 @@ export default function AccountPage() {
       <Button variant="outline" className="mt-4 w-full" onClick={() => void logout()}>
         Log out
       </Button>
+
+      <section className="mt-8">
+        <h2 className="font-medium">Alerts</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Status changes and mechanic updates land here.
+        </p>
+        <div className="mt-3">
+          <NotificationInbox />
+        </div>
+      </section>
     </main>
   );
 }

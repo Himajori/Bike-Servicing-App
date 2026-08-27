@@ -19,7 +19,7 @@ This repo follows the build plan from the BikeService UI (customer app, mechanic
 | 13 | Pickup & delivery | Booking `mode`: DOORSTEP or PICKUP_DROP |
 | 14 | Payments | Card / UPI / wallet on the job |
 | 15 | Reviews | Stars + comment after complete |
-| 16 | Notifications | `/api/notifications` in-app alerts |
+| 16 | Notifications | `/api/notifications`; inbox on customer account, mechanic You, admin dashboard |
 | 17 | Admin dashboard | `/admin` KPIs, users, bookings, inventory |
 
 ## Roles
