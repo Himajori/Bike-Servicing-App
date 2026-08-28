@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { estimatePrice } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
 
 const schema = z.object({
   serviceId: z.string(),
@@ -23,6 +24,11 @@ export async function POST(request: Request) {
     bikeYear = bike?.year ?? null;
   }
   return NextResponse.json({
-    quote: estimatePrice({ basePrice: service.basePrice, mode: parsed.data.mode, bikeYear }),
+    quote: estimatePrice({
+      basePrice: service.basePrice,
+      mode: parsed.data.mode,
+      bikeYear,
+      fees: getSettings(),
+    }),
   });
 }

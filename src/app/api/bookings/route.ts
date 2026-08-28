@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireCustomer } from "@/lib/auth";
 import { estimatePrice } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
 import { statusNote } from "@/lib/booking-flow";
 
 const schema = z.object({
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
     basePrice: service.basePrice,
     mode: parsed.data.mode,
     bikeYear: bike.year,
+    fees: getSettings(),
   });
 
   const booking = await prisma.booking.create({

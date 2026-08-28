@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CommitsMenu } from "@/components/commits-menu";
 
 const links = [
   { href: "#how-it-works", label: "How it works" },
@@ -26,6 +27,7 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          <CommitsMenu />
           <Button render={<Link href="/login" />} size="sm" variant="secondary">
             Log in
           </Button>
@@ -49,6 +51,7 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          <CommitsMenu />
           <Button render={<Link href="/login" />} className="w-full">
             Log in
           </Button>

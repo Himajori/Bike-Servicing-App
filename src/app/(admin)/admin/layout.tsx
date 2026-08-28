@@ -6,7 +6,12 @@ const links = [
   ["Users", "/admin/users"],
   ["Mechanics", "/admin/users?role=MECHANIC"],
   ["Bookings", "/admin/bookings"],
+  ["Services", "/admin/services"],
   ["Inventory", "/admin/inventory"],
+  ["Payments", "/admin/payments"],
+  ["Reviews", "/admin/reviews"],
+  ["Reports", "/admin/reports"],
+  ["Settings", "/admin/settings"],
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

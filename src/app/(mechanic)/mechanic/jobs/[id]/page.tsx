@@ -36,18 +36,24 @@ export default function MechanicJobPage({ params }: { params: Promise<{ id: stri
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
-  async function load() {
-    const [jobData, inv] = await Promise.all([
+  useEffect(() => {
+    let alive = true;
+    Promise.all([
       api<{ job: Job }>(`/api/mechanic/jobs/${id}`),
       api<{ items: Stock[] }>("/api/inventory"),
-    ]);
-    setJob(jobData.job);
-    setStock(inv.items);
-    setSummary(jobData.job.workSummary ?? "");
-  }
-
-  useEffect(() => {
-    load().catch((err) => setError(err instanceof Error ? err.message : "Could not load job."));
+    ])
+      .then(([jobData, inv]) => {
+        if (!alive) return;
+        setJob(jobData.job);
+        setStock(inv.items);
+        setSummary(jobData.job.workSummary ?? "");
+      })
+      .catch((err) => {
+        if (alive) setError(err instanceof Error ? err.message : "Could not load job.");
+      });
+    return () => {
+      alive = false;
+    };
   }, [id]);
 
   async function act(action: "accept" | "reject" | "advance" | "complete") {

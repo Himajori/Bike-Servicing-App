@@ -22,13 +22,17 @@ export function StatusDonut({ byStatus }: { byStatus: Record<string, number> }) 
       value: bucket.match.reduce((sum, status) => sum + (byStatus[status] ?? 0), 0),
     }));
     const total = counts.reduce((sum, slice) => sum + slice.value, 0) || 1;
-    let angle = -90;
-    return counts.map((slice) => {
-      const deg = (slice.value / total) * 360;
-      const start = angle;
-      angle += deg;
-      return { ...slice, pct: Math.round((slice.value / total) * 100), start, deg };
-    });
+    return counts.reduce(
+      (acc, slice) => {
+        const deg = (slice.value / total) * 360;
+        const start = acc.length === 0 ? -90 : acc[acc.length - 1].start + acc[acc.length - 1].deg;
+        return [
+          ...acc,
+          { ...slice, pct: Math.round((slice.value / total) * 100), start, deg },
+        ];
+      },
+      [] as { key: string; label: string; color: string; value: number; pct: number; start: number; deg: number }[],
+    );
   }, [byStatus]);
 
   const total = slices.reduce((sum, slice) => sum + slice.value, 0);
