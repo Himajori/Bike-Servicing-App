@@ -55,8 +55,11 @@ export function LeafletMap({
   const onPickRef = useRef(onPick);
   const onSelectRef = useRef(onSelect);
   const [ready, setReady] = useState(false);
-  onPickRef.current = onPick;
-  onSelectRef.current = onSelect;
+
+  useEffect(() => {
+    onPickRef.current = onPick;
+    onSelectRef.current = onSelect;
+  }, [onPick, onSelect]);
 
   useEffect(() => {
     const el = containerRef.current;

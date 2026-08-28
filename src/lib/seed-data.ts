@@ -63,14 +63,12 @@ async function refreshCatalog() {
 }
 
 async function ensureAlbaniaListings() {
-  if ((await prisma.bikeListing.count()) === 0) {
-    await prisma.bikeListing.createMany({ data: albaniaListings() });
-    return;
-  }
-  const tirana = await prisma.bikeListing.count({ where: { city: "Tirana" } });
-  if (tirana === 0) {
-    await prisma.bikeListing.createMany({ data: albaniaListings().filter((row) => row.city === "Tirana") });
-  }
+  const existing = await prisma.bikeListing.findMany({
+    select: { brand: true, model: true, city: true },
+  });
+  const seen = new Set(existing.map((row) => `${row.brand}|${row.model}|${row.city}`));
+  const missing = albaniaListings().filter((row) => !seen.has(`${row.brand}|${row.model}|${row.city}`));
+  if (missing.length > 0) await prisma.bikeListing.createMany({ data: missing });
 }
 
 async function relocateDemoToTirana() {

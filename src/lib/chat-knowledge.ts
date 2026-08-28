@@ -42,13 +42,22 @@ Demo customer: alex@rideready.test / ride1234`,
 Bikes 10+ years old may add an age surcharge.`,
   },
   {
-    keys: ["buy", "sell", "market", "listing", "upload", "for sale", "marketplace"],
+    keys: ["buy", "sell", "market", "listing", "upload", "for sale", "marketplace", "post a bike"],
     text: `Bikes in the header opens the marketplace (/market), not your garage.
 
-• Search to buy — filter by brand, model, description, or city (try Tirana). Tap a card for the seller's contact.
-• Upload a bike — photo, description, price, city, and your contact. Buyers can search it right away.
+To upload a bike: open Bikes → Sell a bike, then fill brand, model, year, colour, price, and city. Add a description of at least 8 characters, a JPG/PNG/WebP photo up to 3 MB, and your contact details. Press List the bike and it shows in the buy search immediately.
+
+To buy: use the search box to filter by brand, model, description, or city, then tap a card for the seller's phone or email.
 
 Your garage for servicing is still /bikes after you log in as a customer.`,
+  },
+  {
+    keys: ["which shop", "best shop", "recommend", "where should", "nearest", "closest", "decide"],
+    text: `Open the landing map and press Use my GPS, or search your city. Pins come from OpenStreetMap, so they are real shops and public repair stands.
+
+Pick a named shop close to the centre with a phone number listed — in Tirana that is usually Bike Doctor or Bike Point Albania. Tap a pin to see the address.
+
+If you cannot ride there, book doorstep service and a mechanic comes to your pin instead.`,
   },
   {
     keys: ["price", "cost", "fee", "quote", "lek", "euro", "all"],

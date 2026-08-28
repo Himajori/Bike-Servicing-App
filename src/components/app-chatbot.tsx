@@ -10,14 +10,20 @@ type Msg = { role: "bot" | "user"; text: string };
 
 const WELCOME: Msg = {
   role: "bot",
-  text: "Hi — I'm the BikeService assistant. I only talk about this app. Ask how it works, how to book a repair, or how to buy or list a bike.",
+  text: "Hi — I'm the BikeService assistant. I can pick a workshop for you, price a repair, or walk you through listing a bike. I only answer questions about this app.",
 };
+
+const START_SUGGESTIONS = [
+  "Which shop should I use?",
+  "How do I upload a bike?",
+  "How do I create an account?",
+];
 
 export function AppChatbot() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Msg[]>([WELCOME]);
-  const [suggestions, setSuggestions] = useState(["How it works", "Book a repair", "Buy or sell a bike"]);
+  const [suggestions, setSuggestions] = useState(START_SUGGESTIONS);
   const [pending, setPending] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -29,22 +35,30 @@ export function AppChatbot() {
     const text = question.trim();
     if (!text || pending) return;
     setInput("");
+    const history = messages
+      .slice(1)
+      .slice(-6)
+      .map((msg) => ({ role: msg.role === "bot" ? ("assistant" as const) : ("user" as const), content: msg.text }));
     setMessages((prev) => [...prev, { role: "user", text }]);
     setPending(true);
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({
+          message: text,
+          city: window.localStorage.getItem("bikeservice-city") ?? "tirana",
+          history,
+        }),
       });
-      const data = (await response.json()) as { text?: string; suggestions?: string[]; error?: string };
+      const data = (await response.json()) as { text?: string; suggestions?: string[] };
       const reply = data.text ? data : answerBikeService(text);
       setMessages((prev) => [...prev, { role: "bot", text: reply.text ?? "Try asking how it works." }]);
-      if (reply.suggestions) setSuggestions(reply.suggestions);
+      setSuggestions(reply.suggestions?.length ? reply.suggestions : START_SUGGESTIONS);
     } catch {
-      const fallback = answerBikeService(text);
-      setMessages((prev) => [...prev, { role: "bot", text: fallback.text }]);
-      setSuggestions(fallback.suggestions);
+      const offline = answerBikeService(text);
+      setMessages((prev) => [...prev, { role: "bot", text: offline.text }]);
+      setSuggestions(offline.suggestions);
     } finally {
       setPending(false);
     }
@@ -98,7 +112,7 @@ export function AppChatbot() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about BikeService…"
+              placeholder="Which shop? How do I sell a bike?"
               maxLength={500}
             />
             <Button type="submit" size="icon" disabled={pending || !input.trim()} aria-label="Send">

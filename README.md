@@ -20,6 +20,12 @@ Landing: **Use my GPS** or search a city. Tirana is default. The map loads OpenS
 
 Prices are euro bands from Albanian shop rates (quick fixes from €5, full service from €25), shown with lek in Albania, then scaled for Kosovo, Greece, Italy, Poland, and the US.
 
+## In-app assistant
+
+The chat bubble answers questions about this app only — how to book a repair, which workshop to pick, how to list or buy a bike, how to create an account, and what a job costs.
+
+Set `OPENAI_API_KEY` (and optionally `OPENAI_MODEL`, default `gpt-4o-mini`) to answer through OpenAI. Every request is grounded in live app data: the priced service catalog for the selected city, the ranked OpenStreetMap shops nearby, current marketplace listings, and travel fees. Without a key the same data drives a built-in advisor, so the assistant still recommends a specific shop or listing by name.
+
 ## How it works
 
 ```
