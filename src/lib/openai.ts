@@ -29,7 +29,12 @@ function contextBlock(ctx: AppContext) {
     .join("\n");
 
   const listings = ctx.listings
-    .map((l) => `- ${l.brand} ${l.model}${l.year ? ` ${l.year}` : ""} — ${money(l.price)} in ${l.city}; seller ${l.seller} (${l.contact}); ${l.description}`)
+    .map(
+      (l) =>
+        `- ${l.brand} ${l.model}${l.year ? ` ${l.year}` : ""} — ${money(l.price)} in ${l.city}; viewing spot ${
+          l.meetingPoint ?? "not set, city centre"
+        }; seller ${l.seller} (${l.contact}); ${l.description}`,
+    )
     .join("\n");
 
   return `SELECTED CITY: ${ctx.city.name}, ${ctx.city.country} (price index ${ctx.city.priceIndex}${

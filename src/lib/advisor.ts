@@ -365,7 +365,9 @@ It shows in the buy search straight away.${pricing}`,
         .slice(0, 3)
         .map(
           (l) =>
-            `• ${l.brand} ${l.model}${l.year ? ` (${l.year})` : ""} — ${money(l.price, ctx)}, ${l.city}. Contact ${l.seller} at ${l.contact}.`,
+            `• ${l.brand} ${l.model}${l.year ? ` (${l.year})` : ""} — ${money(l.price, ctx)}. See it at ${
+              l.meetingPoint ?? l.city
+            }. Contact ${l.seller} at ${l.contact}.`,
         )
         .join("\n");
       const safety = ctx.services.find((s) => s.name === "Safety check");

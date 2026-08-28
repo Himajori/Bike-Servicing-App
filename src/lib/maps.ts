@@ -609,6 +609,14 @@ export function cityBySlug(slug: string | null | undefined) {
   return SERVICE_CITIES.find((item) => item.slug === slug.toLowerCase());
 }
 
+export function cityByName(name: string | null | undefined) {
+  if (!name) return undefined;
+  const target = foldAscii(name.trim());
+  return SERVICE_CITIES.find(
+    (item) => foldAscii(item.name) === target || (item.aliases ?? []).some((alias) => foldAscii(alias) === target),
+  );
+}
+
 export function cityMatchesQuery(city: ServiceCity, query: string) {
   const q = foldAscii(query);
   if (!q) return true;

@@ -109,14 +109,17 @@ model Bike {
 }
 
 model BikeListing {
-  id          String         @id @default(cuid())
-  brand       String
-  model       String
-  year        Int?
-  color       String?
-  description String
-  price       Float
-  city        String
+  id           String        @id @default(cuid())
+  brand        String
+  model        String
+  year         Int?
+  color        String?
+  description  String
+  price        Float
+  city         String
+  meetingPoint String?
+  lat          Float?
+  lng          Float?
   imageUrl    String?
   sellerName  String
   sellerEmail String

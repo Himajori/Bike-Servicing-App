@@ -31,6 +31,7 @@ export type ListingSummary = {
   year: number | null;
   price: number;
   city: string;
+  meetingPoint: string | null;
   description: string;
   seller: string;
   contact: string;
@@ -112,6 +113,7 @@ export async function buildAppContext(citySlug?: string | null): Promise<AppCont
       year: row.year,
       price: row.price,
       city: row.city,
+      meetingPoint: row.meetingPoint,
       description: row.description,
       seller: row.sellerName,
       contact: row.sellerPhone ?? row.sellerEmail,

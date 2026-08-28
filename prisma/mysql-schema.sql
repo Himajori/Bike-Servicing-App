@@ -72,6 +72,7 @@ CREATE TABLE `Service` (
   `priceMin` DOUBLE NOT NULL DEFAULT 0,
   `priceMax` DOUBLE NOT NULL DEFAULT 0,
   `durationMin` INT NOT NULL,
+  -- BikeListing also stores `meetingPoint` VARCHAR(191), `lat` DOUBLE, `lng` DOUBLE
   PRIMARY KEY (`id`)
 );
 

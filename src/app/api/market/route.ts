@@ -3,6 +3,7 @@ import path from "path";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { cityByName } from "@/lib/maps";
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -21,7 +22,17 @@ export async function GET(request: Request) {
     const matchesCity = !city || item.city.toLowerCase() === city.toLowerCase();
     return matchesQ && matchesCity;
   });
-  return NextResponse.json({ listings: filtered });
+
+  // Older listings have no pin, so fall back to the centre of their city.
+  const located = filtered.map((item) => {
+    if (item.lat != null && item.lng != null) return { ...item, locationSource: "seller" as const };
+    const center = cityByName(item.city)?.center;
+    return center
+      ? { ...item, lat: center.lat, lng: center.lng, locationSource: "city" as const }
+      : { ...item, locationSource: "none" as const };
+  });
+
+  return NextResponse.json({ listings: located });
 }
 
 export async function POST(request: Request) {
@@ -37,6 +48,11 @@ export async function POST(request: Request) {
   const sellerPhone = String(form.get("sellerPhone") ?? session?.phone ?? "").trim() || null;
   const yearRaw = String(form.get("year") ?? "");
   const price = Number(form.get("price"));
+  const meetingPoint = String(form.get("meetingPoint") ?? "").trim() || null;
+  const latRaw = Number(form.get("lat"));
+  const lngRaw = Number(form.get("lng"));
+  const hasPin = Number.isFinite(latRaw) && Number.isFinite(lngRaw) && (latRaw !== 0 || lngRaw !== 0);
+  const fallback = cityByName(city)?.center;
   if (!brand || !model || description.length < 8 || !city || !sellerName || !sellerEmail || !price) {
     return NextResponse.json(
       { error: "Brand, model, city, price, seller, and a short description are required." },
@@ -71,6 +87,9 @@ export async function POST(request: Request) {
       year: yearRaw ? Number(yearRaw) : null,
       color: String(form.get("color") ?? "").trim() || null,
       imageUrl,
+      meetingPoint,
+      lat: hasPin ? latRaw : (fallback?.lat ?? null),
+      lng: hasPin ? lngRaw : (fallback?.lng ?? null),
     },
   });
   return NextResponse.json({ listing });

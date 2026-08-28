@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
-import { CITY } from "./maps";
+import { CITY, cityByName } from "./maps";
 import { SERVICE_CATALOG, SERVICE_RENAMES } from "./catalog";
 
 const DEMO_PASSWORD = "ride1234";
@@ -64,11 +64,26 @@ async function refreshCatalog() {
 
 async function ensureAlbaniaListings() {
   const existing = await prisma.bikeListing.findMany({
-    select: { brand: true, model: true, city: true },
+    select: { id: true, brand: true, model: true, city: true, lat: true, lng: true },
   });
   const seen = new Set(existing.map((row) => `${row.brand}|${row.model}|${row.city}`));
   const missing = albaniaListings().filter((row) => !seen.has(`${row.brand}|${row.model}|${row.city}`));
   if (missing.length > 0) await prisma.bikeListing.createMany({ data: missing });
+
+  // Listings created before viewing spots existed still need a pin on the map.
+  const seeds = albaniaListings();
+  for (const row of existing) {
+    if (row.lat != null && row.lng != null) continue;
+    const seed = seeds.find((s) => s.brand === row.brand && s.model === row.model && s.city === row.city);
+    const center = cityByName(row.city)?.center;
+    const lat = seed?.lat ?? center?.lat;
+    const lng = seed?.lng ?? center?.lng;
+    if (lat == null || lng == null) continue;
+    await prisma.bikeListing.update({
+      where: { id: row.id },
+      data: { lat, lng, meetingPoint: seed?.meetingPoint ?? null },
+    });
+  }
 }
 
 async function relocateDemoToTirana() {
@@ -109,6 +124,9 @@ function albaniaListings() {
       color: "Black",
       city: "Tirana",
       price: 280,
+      meetingPoint: "Rruga Myslym Shyri, by Bike Point Albania",
+      lat: 41.32591,
+      lng: 19.81512,
       sellerName: "Arben Hoxha",
       sellerEmail: "alex@rideready.test",
       sellerPhone: "+355 69 555 0148",
@@ -122,6 +140,9 @@ function albaniaListings() {
       color: "Blue",
       city: "Tirana",
       price: 420,
+      meetingPoint: "Sheshi Skënderbej, north side",
+      lat: 41.3279,
+      lng: 19.8187,
       sellerName: "Arben Hoxha",
       sellerEmail: "alex@rideready.test",
       sellerPhone: "+355 69 555 0148",
@@ -135,6 +156,9 @@ function albaniaListings() {
       color: "Grey",
       city: "Durrës",
       price: 190,
+      meetingPoint: "Rruga Taulantia, near the port promenade",
+      lat: 41.3131,
+      lng: 19.4448,
       sellerName: "Lira Meta",
       sellerEmail: "lira@example.test",
       sellerPhone: "+355 69 200 1100",
@@ -148,6 +172,9 @@ function albaniaListings() {
       color: "Green",
       city: "Shkodër",
       price: 160,
+      meetingPoint: "Rruga Berdicej, outside the Biçiklist stand",
+      lat: 42.06624,
+      lng: 19.51779,
       sellerName: "Genti Beci",
       sellerEmail: "genti@example.test",
       sellerPhone: "+355 69 400 2200",
@@ -161,6 +188,9 @@ function albaniaListings() {
       color: "Red",
       city: "Warszawa",
       price: 310,
+      meetingPoint: "ul. Puławska 120, in front of the workshop",
+      lat: 52.201,
+      lng: 21.023,
       sellerName: "Ola Wiśniewska",
       sellerEmail: "ola@example.test",
       imageUrl: "https://images.unsplash.com/photo-1511994298241-608e28f6f2ce?auto=format&fit=crop&w=1200&q=80",
@@ -173,6 +203,9 @@ function albaniaListings() {
       color: "Celeste",
       city: "Roma",
       price: 890,
+      meetingPoint: "Via Nazionale, near Palazzo delle Esposizioni",
+      lat: 41.8967,
+      lng: 12.4903,
       sellerName: "Luca Bianchi",
       sellerEmail: "luca@example.test",
       imageUrl: "https://images.unsplash.com/photo-1511994298241-608e28f6f2ce?auto=format&fit=crop&w=1200&q=80",
