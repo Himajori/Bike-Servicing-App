@@ -5,18 +5,18 @@ import { AppChatbot } from "@/components/app-chatbot";
 
 const sans = Outfit({
   variable: "--font-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
 });
 
 const heading = Fraunces({
   variable: "--font-heading",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
 });
 
 export const metadata: Metadata = {
-  title: "BikeService — book a bike repair",
+  title: "BikeService — Albania bike repair",
   description:
-    "Repair your bike without leaving home. Find a workshop, see prices, and book doorstep or pickup & drop.",
+    "GPS map of Albanian bicycle shops, prices from €5 to a full service, and doorstep or pickup booking.",
 };
 
 export const viewport: Viewport = {

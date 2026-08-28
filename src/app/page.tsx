@@ -8,6 +8,7 @@ import { CitySearch } from "@/components/city-search";
 import { RepairCounter } from "@/components/repair-counter";
 import { HowItWorks } from "@/components/how-it-works";
 import { WorkshopExplorer } from "@/components/workshop-explorer";
+import { PriceBoard } from "@/components/price-board";
 import { SiteHeader } from "@/components/site-header";
 import { api } from "@/lib/api";
 import { SERVICE_CITIES, type ServiceCity } from "@/lib/maps";
@@ -26,6 +27,8 @@ export default function LandingPage() {
   const [city, setCity] = useState<ServiceCity>(SERVICE_CITIES[0]);
   const [repairs, setRepairs] = useState(294568);
   const [mechanics, setMechanics] = useState<Mechanic[]>([]);
+  const [locating, setLocating] = useState(false);
+  const [gpsNote, setGpsNote] = useState<string | null>(null);
 
   useEffect(() => {
     api<{ repairsDone: number }>("/api/public/stats")
@@ -36,9 +39,49 @@ export default function LandingPage() {
       .catch(() => undefined);
   }, []);
 
-  function chooseCity(next: ServiceCity) {
+  function chooseCity(next: ServiceCity, note?: string) {
     setCity(next);
+    window.localStorage.setItem("bikeservice-city", next.slug);
+    setGpsNote(note ?? null);
     document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function locate() {
+    if (!navigator.geolocation) {
+      setGpsNote("This browser has no GPS. Search Tirana or another city.");
+      return;
+    }
+    setLocating(true);
+    setGpsNote(null);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const data = await api<{
+            city: ServiceCity;
+            km: number;
+            label: string | null;
+          }>("/api/geo", {
+            method: "POST",
+            body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          });
+          chooseCity(
+            data.city,
+            data.label
+              ? `${data.label} · nearest workshop city ${data.city.name} (${data.km} km)`
+              : `GPS locked. Nearest city: ${data.city.name} (${data.km} km).`,
+          );
+        } catch {
+          setGpsNote("Could not match that GPS point to a city.");
+        } finally {
+          setLocating(false);
+        }
+      },
+      () => {
+        setLocating(false);
+        setGpsNote("Location was blocked. Search a city instead — Tirana is the default.");
+      },
+      { enableHighAccuracy: true, timeout: 12_000 },
+    );
   }
 
   return (
@@ -51,16 +94,17 @@ export default function LandingPage() {
         </div>
         <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:py-24">
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">BikeService</p>
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">BikeService Albania</p>
             <h1 className="font-heading mt-4 text-4xl leading-tight sm:text-6xl">
               Repair your bike without leaving home
             </h1>
             <p className="mt-4 max-w-xl text-sm text-white/70 sm:text-base">
-              Find a workshop, read the price list, and book doorstep or pickup & drop. Same idea as
-              BikeService in Poland — built here as a live demo you can actually book.
+              GPS map of real bicycle shops from OpenStreetMap — Tirana, Shkodër, Durrës and the rest of
+              Albania first. Prices start at €5 / 500 Lek for a flat and climb to a full service.
             </p>
             <div className="mt-8 max-w-xl">
-              <CitySearch onSelect={chooseCity} initial={city.name} />
+              <CitySearch onSelect={(next) => chooseCity(next)} initial={city.name} locating={locating} onLocate={locate} />
+              {gpsNote ? <p className="mt-3 text-xs text-white/60">{gpsNote}</p> : null}
             </div>
           </div>
           <div className="flex flex-col items-center justify-center gap-6">
@@ -68,7 +112,7 @@ export default function LandingPage() {
             <div className="w-full max-w-xs rounded-[2rem] border border-white/15 bg-black/25 p-4">
               <p className="text-xs uppercase tracking-wide text-white/50">Live in {city.name}</p>
               <p className="mt-1 font-medium">
-                {city.live ? "Mechanics on the map — tap Search" : "Waitlist city — Austin is bookable"}
+                OSM bicycle shops on the GPS map · {city.country}
               </p>
             </div>
           </div>
@@ -83,17 +127,17 @@ export default function LandingPage() {
               {
                 icon: Wrench,
                 title: "Bicycle repair",
-                body: "Choose the workshop. Mechanics handle the full catalog. Door-to-door transport is available so you don’t have to worry about anything.",
+                body: "OpenStreetMap pins for shops and public repair stands. Doorstep or pickup if you cannot roll the bike in.",
               },
               {
                 icon: Phone,
                 title: "Service prices",
-                body: "Every stand shows a price list before you book. Non-standard work can change the total — you’ll see the estimate before you confirm.",
+                body: "Every job shows a low-to-high band from Albanian shop rates, then a local index for Kosovo, Greece, Italy, Poland, and the US.",
               },
               {
                 icon: History,
                 title: "Repair history",
-                body: "Can’t remember the last service? Keep a personal service book on the bike you ride.",
+                body: "Keep a personal service book on the bike you ride in Tirana or anywhere else you book.",
               },
             ].map((item) => (
               <article
@@ -111,11 +155,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="how-it-works" className="py-16">
+      <section id="prices" className="py-16">
+        <div className="mx-auto max-w-6xl px-4">
+          <PriceBoard city={city} />
+        </div>
+      </section>
+
+      <section id="how-it-works" className="bg-[oklch(0.94_0.016_80)] py-16">
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="font-heading text-3xl sm:text-4xl">See how it works</h2>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Tap a step here, or press the chat icon in the corner and ask “How it works”.
+            Share your GPS or pick a city, read the price band, then book. The corner chat also answers how it works.
           </p>
           <div className="mt-8">
             <HowItWorks />
@@ -123,13 +173,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="workshops" className="bg-[oklch(0.94_0.016_80)] py-16">
+      <section id="workshops" className="py-16">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="font-heading text-3xl sm:text-4xl">Find a workshop in your area</h2>
               <p className="mt-2 text-muted-foreground">
-                Pins are workshops and mobile mechanics. Austin is live; Polish cities are on the waitlist.
+                Pins are GPS coordinates from OpenStreetMap bicycle shops and repair stands. Albania is the home map;
+                other countries load the same OSM layer.
               </p>
             </div>
             <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
@@ -143,7 +194,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="bg-[oklch(0.94_0.016_80)] py-16">
         <div className="mx-auto max-w-6xl px-4 text-center">
           <Bike className="mx-auto size-8 text-primary" />
           <h2 className="font-heading mt-4 text-3xl">Trusted us</h2>

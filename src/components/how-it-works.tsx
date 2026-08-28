@@ -7,20 +7,20 @@ import { cn } from "@/lib/utils";
 const STEPS = [
   {
     n: 1,
-    title: "Find a workshop or select a city",
-    body: "Search the map. Live cities show mechanics you can book the same day.",
+    title: "Share GPS or pick a city",
+    body: "Tirana is the home map. OpenStreetMap pins show real bicycle shops across Albania and other countries.",
     icon: MapPin,
   },
   {
     n: 2,
     title: "Pick a service and tap Book",
-    body: "Oil change, tune-up, brakes, e-bike diagnostic — prices are on the card.",
+    body: "Jobs are sorted lowest to highest. Flats start at €5; a full service starts at €25. Prices are on the card.",
     icon: Bike,
   },
   {
     n: 3,
     title: "Choose a date and how we reach you",
-    body: "Doorstep visit or pickup & drop. Drop a pin so the van knows where to stop.",
+    body: "Doorstep visit or pickup & drop. Share GPS or drop a pin so the van knows where to stop.",
     icon: CalendarCheck,
   },
   {

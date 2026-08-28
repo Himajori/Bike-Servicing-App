@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { estimatePrice } from "@/lib/pricing";
+import { cityFromQuery, estimatePrice } from "@/lib/pricing";
 import { getSettings } from "@/lib/settings";
 
 const schema = z.object({
   serviceId: z.string(),
   bikeId: z.string().optional(),
   mode: z.enum(["DOORSTEP", "PICKUP_DROP"]),
+  city: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -23,12 +24,14 @@ export async function POST(request: Request) {
     const bike = await prisma.bike.findUnique({ where: { id: parsed.data.bikeId } });
     bikeYear = bike?.year ?? null;
   }
+  const city = cityFromQuery(parsed.data.city);
   return NextResponse.json({
     quote: estimatePrice({
       basePrice: service.basePrice,
       mode: parsed.data.mode,
       bikeYear,
       fees: getSettings(),
+      priceIndex: city?.priceIndex ?? 1,
     }),
   });
 }

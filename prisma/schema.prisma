@@ -136,6 +136,8 @@ model Service {
   description String
   category    String
   basePrice   Float
+  priceMin    Float  @default(0)
+  priceMax    Float  @default(0)
   durationMin Int
 
   bookings Booking[]

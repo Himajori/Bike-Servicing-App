@@ -6,6 +6,8 @@ import { requireAdmin } from "@/lib/auth";
 const patch = z.object({
   id: z.string(),
   basePrice: z.number().positive(),
+  priceMin: z.number().positive().optional(),
+  priceMax: z.number().positive().optional(),
   durationMin: z.number().int().positive().optional(),
 });
 
@@ -27,6 +29,8 @@ export async function PATCH(request: Request) {
     where: { id: parsed.data.id },
     data: {
       basePrice: parsed.data.basePrice,
+      ...(parsed.data.priceMin ? { priceMin: parsed.data.priceMin } : {}),
+      ...(parsed.data.priceMax ? { priceMax: parsed.data.priceMax } : {}),
       ...(parsed.data.durationMin ? { durationMin: parsed.data.durationMin } : {}),
     },
   });

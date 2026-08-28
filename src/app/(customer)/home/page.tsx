@@ -34,6 +34,8 @@ type ServiceRow = {
   name: string;
   category: string;
   basePrice: number;
+  priceMin: number;
+  priceMax: number;
 };
 
 export default function HomePage() {
@@ -79,7 +81,7 @@ export default function HomePage() {
       <h1 className="font-heading mt-1 text-3xl">
         {loading ? "Loading…" : `Hi, ${user?.name.split(" ")[0] ?? "there"}`}
       </h1>
-      <p className="mt-1 text-sm text-muted-foreground">Austin service area · doorstep or pickup</p>
+      <p className="mt-1 text-sm text-muted-foreground">Tirana and Albania · doorstep or pickup</p>
 
       {error ? <p className="mt-4 text-sm text-destructive">{error}</p> : null}
 
@@ -199,7 +201,11 @@ export default function HomePage() {
             >
               <p className="text-xs text-muted-foreground">{service.category}</p>
               <p className="mt-1 font-medium">{service.name}</p>
-              <p className="mt-2 text-sm font-semibold">{formatMoney(service.basePrice)}</p>
+              <p className="mt-2 text-sm font-semibold">
+                {service.priceMin && service.priceMax && service.priceMin !== service.priceMax
+                  ? `${formatMoney(service.priceMin)} – ${formatMoney(service.priceMax)}`
+                  : formatMoney(service.basePrice)}
+              </p>
             </Link>
           ))}
         </div>

@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ServiceMap } from "@/components/service-map";
 import { type MapMarker, type ServiceCity } from "@/lib/maps";
+import { formatPriceRange } from "@/lib/pricing";
 
 type Mechanic = {
   id: string;
@@ -16,6 +17,17 @@ type Mechanic = {
   available: boolean;
 };
 
+type OsmWorkshop = {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  services: string;
+  kind?: string;
+  phone?: string | null;
+};
+
 export function WorkshopExplorer({
   city,
   mechanics,
@@ -24,9 +36,36 @@ export function WorkshopExplorer({
   mechanics: Mechanic[];
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [osm, setOsm] = useState<OsmWorkshop[]>([]);
+  const [source, setSource] = useState<string>("openstreetmap");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    setSelectedId(null);
+    fetch(`/api/shops?city=${encodeURIComponent(city.slug)}`)
+      .then((res) => res.json())
+      .then((data: { workshops?: OsmWorkshop[]; source?: string }) => {
+        if (!alive) return;
+        setOsm(data.workshops ?? []);
+        setSource(data.source ?? "openstreetmap");
+      })
+      .catch(() => {
+        if (alive) setOsm([]);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [city.slug]);
+
+  const workshops = osm.length > 0 ? osm : city.workshops;
 
   const markers: MapMarker[] = useMemo(() => {
-    const list: MapMarker[] = city.workshops.map((shop) => ({
+    const list: MapMarker[] = workshops.map((shop) => ({
       id: shop.id,
       lat: shop.lat,
       lng: shop.lng,
@@ -37,6 +76,7 @@ export function WorkshopExplorer({
     if (city.live) {
       for (const mechanic of mechanics) {
         if (!mechanic.lat || !mechanic.lng) continue;
+        if (city.countryCode !== "AL") continue;
         list.push({
           id: mechanic.id,
           lat: mechanic.lat,
@@ -48,16 +88,15 @@ export function WorkshopExplorer({
       }
     }
     return list;
-  }, [city, mechanics]);
+  }, [city, mechanics, workshops]);
 
   const selected =
-    city.workshops.find((w) => w.id === selectedId) ??
-    mechanics.find((m) => m.id === selectedId) ??
-    null;
+    workshops.find((w) => w.id === selectedId) ?? mechanics.find((m) => m.id === selectedId) ?? null;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
       <ServiceMap
+        key={city.slug}
         center={city.center}
         bounds={city.bounds}
         markers={markers}
@@ -68,12 +107,12 @@ export function WorkshopExplorer({
       />
       <div className="space-y-3">
         <p className="text-sm text-muted-foreground">
-          {city.live
-            ? `${markers.length} points in ${city.name} — tap a pin or a card.`
-            : `${city.name} is on the waitlist. Austin is live for demo bookings.`}
+          {loading
+            ? `Loading OpenStreetMap bicycle shops in ${city.name}…`
+            : `${markers.length} GPS pins in ${city.name}, ${city.country}. Prices here run ${formatPriceRange(5, 80, city)} for typical jobs. Source: ${source === "openstreetmap" ? "OpenStreetMap" : "OpenStreetMap cache"}.`}
         </p>
-        <ul className="space-y-2">
-          {city.workshops.map((shop) => (
+        <ul className="max-h-[22rem] space-y-2 overflow-auto pr-1">
+          {workshops.map((shop) => (
             <li key={shop.id}>
               <button
                 type="button"
@@ -88,7 +127,7 @@ export function WorkshopExplorer({
               </button>
             </li>
           ))}
-          {city.live
+          {city.countryCode === "AL"
             ? mechanics.map((mechanic) => (
                 <li key={mechanic.id}>
                   <button
@@ -115,8 +154,8 @@ export function WorkshopExplorer({
         {selected && "address" in selected ? (
           <p className="text-sm text-muted-foreground">Selected workshop: {selected.name}</p>
         ) : null}
-        <Button render={<Link href={city.live ? "/register" : "/register"} />} className="w-full" size="lg">
-          {city.live ? "Book a repair here" : "Join the waitlist"}
+        <Button render={<Link href="/register" />} className="w-full" size="lg">
+          Book a repair in {city.name}
         </Button>
       </div>
     </div>

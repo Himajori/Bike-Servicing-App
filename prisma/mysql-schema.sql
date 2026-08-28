@@ -69,6 +69,8 @@ CREATE TABLE `Service` (
   `description` TEXT NOT NULL,
   `category` VARCHAR(191) NOT NULL,
   `basePrice` DOUBLE NOT NULL,
+  `priceMin` DOUBLE NOT NULL DEFAULT 0,
+  `priceMax` DOUBLE NOT NULL DEFAULT 0,
   `durationMin` INT NOT NULL,
   PRIMARY KEY (`id`)
 );

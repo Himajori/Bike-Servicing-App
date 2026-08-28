@@ -12,11 +12,11 @@ export type AppSettings = {
 const FILE = path.join(process.cwd(), "data/settings.json");
 
 const FALLBACK: AppSettings = {
-  workshopName: "BikeService Lamar",
+  workshopName: "Bike Doctor Tirana",
   supportEmail: "hello@bikeservice.test",
-  doorstepTravel: 8,
-  pickupTravel: 18,
-  ageSurcharge: 12,
+  doorstepTravel: 4,
+  pickupTravel: 9,
+  ageSurcharge: 6,
 };
 
 export function getSettings(): AppSettings {

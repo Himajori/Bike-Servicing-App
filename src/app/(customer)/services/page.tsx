@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/empty-state";
 import { api } from "@/lib/api";
-import { formatMoney } from "@/lib/pricing";
+import { formatLek, formatMoney } from "@/lib/pricing";
 
 type Service = {
   id: string;
@@ -13,6 +13,8 @@ type Service = {
   description: string;
   category: string;
   basePrice: number;
+  priceMin: number;
+  priceMax: number;
   durationMin: number;
 };
 
@@ -39,7 +41,7 @@ export default function ServicesPage() {
     <main className="px-5 pb-8 pt-8">
       <h1 className="font-heading text-3xl">Services</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Prices shown are workshop base rates. Travel is added at booking.
+        Bands from Albanian shops, lowest to highest. Travel is added at booking.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -76,11 +78,17 @@ export default function ServicesPage() {
                   <h2 className="font-medium">{service.name}</h2>
                   <p className="mt-1 text-sm text-muted-foreground">{service.description}</p>
                 </div>
-                <p className="font-semibold">{formatMoney(service.basePrice)}</p>
+                <p className="text-right font-semibold">
+                  {service.priceMin !== service.priceMax
+                    ? `${formatMoney(service.priceMin)} – ${formatMoney(service.priceMax)}`
+                    : formatMoney(service.basePrice)}
+                </p>
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <Badge variant="outline">{service.category}</Badge>
-                <span className="text-xs text-muted-foreground">{service.durationMin} min</span>
+                <span className="text-xs text-muted-foreground">
+                  {service.durationMin} min · typical {formatMoney(service.basePrice)} · {formatLek(service.basePrice)}
+                </span>
               </div>
             </Link>
           ))

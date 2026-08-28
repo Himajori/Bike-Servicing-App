@@ -12,6 +12,6 @@ export async function GET() {
     repairsDone: 294560 + completed,
     cities: SERVICE_CITIES.length,
     mechanics,
-    liveCity: "Austin",
+    liveCity: "Tirana",
   });
 }

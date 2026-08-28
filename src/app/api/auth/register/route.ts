@@ -35,9 +35,9 @@ export async function POST(request: Request) {
       customer: {
         create: {
           address: parsed.data.address?.trim() || null,
-          city: "Austin",
-          lat: 30.2643,
-          lng: -97.7312,
+          city: "Tirana",
+          lat: 41.3275,
+          lng: 19.8187,
         },
       },
     },

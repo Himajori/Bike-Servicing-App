@@ -1,8 +1,8 @@
 # BikeService
 
-A bike-servicing platform with three roles: **customer**, **mechanic**, and **admin**.
+Doorstep and pickup bike repair, with a GPS map of real **Albanian bicycle shops** (OpenStreetMap) and a price list from **lowest to highest**.
 
-Customers book doorstep or pickup & drop jobs, track status, pay, and review. Mechanics accept work, update progress, and log parts. Admins see KPIs, users, bookings, and inventory.
+Customers book jobs, track status, pay, and review. Mechanics accept work and log parts. Admins see KPIs, users, bookings, and inventory.
 
 GitHub: [https://github.com/Himajori/Bike-Servicing-App](https://github.com/Himajori/Bike-Servicing-App)
 
@@ -14,9 +14,11 @@ The 17-step plan is in [docs/DEVELOPMENT-STEPS.md](docs/DEVELOPMENT-STEPS.md). U
 | --- | --- |
 | Customer | Home, bikes, services, book date/time, track, pay, review, alerts |
 | Mechanic | New / accepted / completed jobs, job details, progress, parts, earnings |
-| Admin | Dashboard KPIs, users, bookings, inventory |
+| Admin | Dashboard KPIs, users, bookings, inventory, services, payments, reviews, reports, settings |
 
-Features: doorstep service, pickup & drop, live status, transparent pricing, inventory parts, demo payments, ratings, in-app notifications.
+Landing: **Use my GPS** or search a city. Tirana is default. The map loads OpenStreetMap `shop=bicycle` and repair stands (about 99 in Albania). Other countries use the same Overpass query inside that city's GPS box.
+
+Prices are euro bands from Albanian shop rates (quick fixes from €5, full service from €25), shown with lek in Albania, then scaled for Kosovo, Greece, Italy, Poland, and the US.
 
 ## How it works
 
@@ -28,6 +30,7 @@ API routes in src/app/api/...
         │
         ▼
 Prisma + SQLite
+OpenStreetMap / Overpass for shop GPS
         │
         ▼
 User → Customer | Mechanic | Admin
@@ -77,7 +80,8 @@ Book, history, track / pay / review:
 ```bash
 npm install
 cp .env.example .env
-npx prisma migrate dev
+npx prisma migrate deploy
+npx prisma generate
 npm run dev
 ```
 

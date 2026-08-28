@@ -47,5 +47,7 @@ next-env.d.ts
 
 /src/generated/prisma
 BikeApp.zip
+AGENTS.md
+CLAUDE.md
 /public/uploads/bikes/*
 !/public/uploads/bikes/.gitkeep

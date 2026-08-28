@@ -59,11 +59,11 @@ export default function RegisterPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>
-            <Input id="phone" name="phone" placeholder="+1 512 555 0101" />
+            <Input id="phone" name="phone" placeholder="+355 69 555 0101" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="address">Home address</Label>
-            <Input id="address" name="address" placeholder="Street, Austin, TX" />
+            <Input id="address" name="address" placeholder="Rruga Myslym Shyri, Tirana" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>

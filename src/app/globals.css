@@ -128,3 +128,15 @@
   background-size: 48px 48px;
   animation: hero-grid 18s linear infinite;
 }
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+  font-family: inherit;
+}
+
+.bikeservice-pin {
+  background: none !important;
+  border: none !important;
+}

@@ -82,7 +82,7 @@ export default function AccountPage() {
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            placeholder="Street, Austin, TX"
+            placeholder="Rruga Myslym Shyri, Tirana"
           />
         </div>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}

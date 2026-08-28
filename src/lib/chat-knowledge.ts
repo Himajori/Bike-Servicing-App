@@ -5,11 +5,10 @@ export type ChatReply = {
 
 const HOW_IT_WORKS = `How BikeService works:
 
-1. Find a workshop or select a city. Austin is live on the map; other cities are waitlist.
-2. Pick a service (oil change, tune-up, brakes, e-bike diagnostic) and tap Book. Prices are on the card.
-3. Choose a date and how we reach you: doorstep visit or pickup & drop. Drop a pin on the map.
-4. Enter your details and add the bike in Your bikes (garage).
-5. Add a comment if you want, confirm, then track status until the stand is clear. Pay and review when it's done.
+1. Share GPS or search a city. Albania is the home map (Tirana, Shkodër, Durrës, Vlorë…). Other countries load the same OpenStreetMap bicycle-shop layer.
+2. Read the price list — jobs are sorted lowest to highest. Bands come from Albanian shop rates (flats from €5 / 500 Lek, full service from €25). Other cities apply a local index.
+3. Pick a service and tap Book. Choose doorstep or pickup & drop, a time, and a GPS pin.
+4. Add the bike in Your bikes (garage), confirm, then track status until the stand is clear. Pay and review when it's done.
 
 Open Book a repair, or log in as alex@rideready.test / ride1234 to try a booking.`;
 
@@ -29,7 +28,7 @@ const TOPICS: { keys: string[]; text: string }[] = [
   },
   {
     keys: ["book", "booking", "repair", "service", "appointment", "slot"],
-    text: `To book a repair: create an account or log in, add a bike under Bikes in the customer app, open Services, pick a job, then choose doorstep or pickup & drop, a time, and a map pin. You'll see the estimated price before you confirm.
+    text: `To book a repair: create an account or log in, add a bike under Bikes in the customer app, open Services, pick a job, then choose doorstep or pickup & drop, a time, and a GPS pin. You'll see the estimated price before you confirm.
 
 Demo customer: alex@rideready.test / ride1234`,
   },
@@ -37,8 +36,8 @@ Demo customer: alex@rideready.test / ride1234`,
     keys: ["doorstep", "pickup", "drop", "van", "travel"],
     text: `Two service types:
 
-• Doorstep — a mechanic comes to your pin (travel fee is set in Admin → Settings, default $8).
-• Pickup & drop — a van collects the bike and brings it back (default $18).
+• Doorstep — a mechanic comes to your GPS pin (travel fee is set in Admin → Settings, default €4 in Albania).
+• Pickup & drop — a van collects the bike and brings it back (default €9).
 
 Bikes 10+ years old may add an age surcharge.`,
   },
@@ -46,16 +45,16 @@ Bikes 10+ years old may add an age surcharge.`,
     keys: ["buy", "sell", "market", "listing", "upload", "for sale", "marketplace"],
     text: `Bikes in the header opens the marketplace (/market), not your garage.
 
-• Search to buy — filter by brand, model, description, or city. Tap a card for the seller's contact.
+• Search to buy — filter by brand, model, description, or city (try Tirana). Tap a card for the seller's contact.
 • Upload a bike — photo, description, price, city, and your contact. Buyers can search it right away.
 
 Your garage for servicing is still /bikes after you log in as a customer.`,
   },
   {
-    keys: ["price", "cost", "fee", "quote", "oil", "tune"],
-    text: `Catalog prices show on Services. The quote adds travel (doorstep or pickup) and a possible age fee. Admins change catalog prices under Admin → Services and travel fees under Settings.
+    keys: ["price", "cost", "fee", "quote", "lek", "euro", "all"],
+    text: `Catalog prices are euro bands from Albanian shops, sorted low to high. A flat is €5–€12; a full service is €25–€80. Tirana also shows lek (about 100 Lek / €1). Other countries multiply by a local index (Italy and the US sit higher).
 
-Open Services after login to see live numbers.`,
+The booking quote adds travel and a possible age fee. Admins change bands under Admin → Services.`,
   },
   {
     keys: ["mechanic", "job", "accept", "earnings"],
@@ -86,8 +85,8 @@ Register creates a customer account.`,
 After the job you can pay (card, UPI, or wallet — demo only) and leave a star review.`,
   },
   {
-    keys: ["city", "austin", "warsaw", "warszawa", "map", "workshop"],
-    text: `Search a city on the home map. Austin is live with mechanics you can book. Polish and other cities are waitlist — you can still join from Register. Tap pins on the map for workshops and mobile mechanics.`,
+    keys: ["city", "tirana", "albania", "gps", "map", "workshop", "shkoder", "shkodër", "osm"],
+    text: `Tap Use my GPS or search a city. The map loads OpenStreetMap bicycle shops and repair stands — about 99 in Albania (Bike Doctor, Bike Point, Biçiklist in Shkodër, Ani's in Berat…). Other countries use the same Overpass API inside that city's GPS box.`,
   },
 ];
 
@@ -95,7 +94,7 @@ const OFF_TOPIC =
   "I only help with this BikeService app — booking repairs, the bike marketplace, how it works, and the demo accounts. Ask about those.";
 
 function score(text: string, keys: string[]) {
-  return keys.reduce((sum, key) => (text.includes(key) ? sum + key.length : sum), 0);
+  return keys.reduce((sum, key) => (text.includes(key) ? sum + key.length : 0 + sum), 0);
 }
 
 export function answerBikeService(question: string): ChatReply {
@@ -122,13 +121,11 @@ export function answerBikeService(question: string): ChatReply {
   }
 
   if (best.n === 0) {
-    return { text: OFF_TOPIC, suggestions: ["How it works", "Book a repair", "Buy or sell a bike"] };
+    return { text: OFF_TOPIC, suggestions: ["How it works", "Book a repair", "Prices"] };
   }
 
   return {
     text: best.text,
-    suggestions: ["How it works", "Track a job", "Mechanic login"].filter(
-      (item) => !text.includes(item.toLowerCase().slice(0, 8)),
-    ),
+    suggestions: ["How it works", "Prices", "Find a workshop"],
   };
 }

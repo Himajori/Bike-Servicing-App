@@ -199,7 +199,7 @@ export default function MarketPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="city">City</Label>
-              <Input id="city" name="city" required placeholder="Austin" />
+              <Input id="city" name="city" required placeholder="Tirana" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="description">Description</Label>

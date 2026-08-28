@@ -3,6 +3,7 @@
 import { FormEvent, use, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { LocateFixed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,13 +11,15 @@ import { ServiceMap } from "@/components/service-map";
 import { EmptyState } from "@/components/empty-state";
 import { api } from "@/lib/api";
 import { formatMoney } from "@/lib/pricing";
-import { CITY, SAVED_PLACES, type MapMarker } from "@/lib/maps";
+import { CITY, SAVED_PLACES, cityBySlug, type MapMarker } from "@/lib/maps";
 
 type Service = {
   id: string;
   name: string;
   description: string;
   basePrice: number;
+  priceMin: number;
+  priceMax: number;
   durationMin: number;
 };
 type Bike = { id: string; brand: string; model: string; year: number | null };
@@ -38,6 +41,13 @@ export default function BookPage({ params }: { params: Promise<{ serviceId: stri
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
+  const [citySlug, setCitySlug] = useState("tirana");
+  const [gpsBusy, setGpsBusy] = useState(false);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("bikeservice-city");
+    if (stored && cityBySlug(stored)) setCitySlug(stored);
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -60,11 +70,11 @@ export default function BookPage({ params }: { params: Promise<{ serviceId: stri
     if (!service) return;
     api<{ quote: Quote }>("/api/quote", {
       method: "POST",
-      body: JSON.stringify({ serviceId, bikeId: bikeId || undefined, mode }),
+      body: JSON.stringify({ serviceId, bikeId: bikeId || undefined, mode, city: citySlug }),
     })
       .then((data) => setQuote(data.quote))
       .catch(() => setQuote(null));
-  }, [service, serviceId, bikeId, mode]);
+  }, [service, serviceId, bikeId, mode, citySlug]);
 
   const markers: MapMarker[] = useMemo(
     () => [
@@ -105,6 +115,7 @@ export default function BookPage({ params }: { params: Promise<{ serviceId: stri
           lat: place.lat,
           lng: place.lng,
           notes,
+          city: citySlug,
         }),
       });
       router.push(`/bookings/${result.booking.id}`);
@@ -138,7 +149,7 @@ export default function BookPage({ params }: { params: Promise<{ serviceId: stri
       </Link>
       <h1 className="font-heading mt-2 text-3xl">{service.name}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        {service.description} · {service.durationMin} min
+        {service.description} · {service.durationMin} min · {formatMoney(service.priceMin)} – {formatMoney(service.priceMax)}
       </p>
 
       {bikes.length === 0 ? (
@@ -239,6 +250,36 @@ export default function BookPage({ params }: { params: Promise<{ serviceId: stri
                   {item.label}
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => {
+                  if (!navigator.geolocation) {
+                    setError("This browser has no GPS.");
+                    return;
+                  }
+                  setGpsBusy(true);
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                      setPlace({
+                        label: "My GPS",
+                        address: `GPS ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`,
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                      });
+                      setGpsBusy(false);
+                    },
+                    () => {
+                      setGpsBusy(false);
+                      setError("Could not read GPS. Allow location or drop a pin.");
+                    },
+                    { enableHighAccuracy: true, timeout: 10_000 },
+                  );
+                }}
+                className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-3 py-1 text-xs text-primary"
+              >
+                <LocateFixed className="size-3" />
+                {gpsBusy ? "Reading GPS…" : "Use my GPS"}
+              </button>
             </div>
             <ServiceMap
               center={{ lat: place.lat, lng: place.lng }}
@@ -249,7 +290,7 @@ export default function BookPage({ params }: { params: Promise<{ serviceId: stri
               onPick={(lat, lng) =>
                 setPlace({
                   label: "Dropped pin",
-                  address: `Custom pin near ${lat.toFixed(3)}, ${lng.toFixed(3)}, Austin, TX`,
+                  address: `GPS pin ${lat.toFixed(5)}, ${lng.toFixed(5)}`,
                   lat,
                   lng,
                 })

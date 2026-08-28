@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireCustomer } from "@/lib/auth";
-import { estimatePrice } from "@/lib/pricing";
+import { cityFromQuery, estimatePrice } from "@/lib/pricing";
 import { getSettings } from "@/lib/settings";
 import { statusNote } from "@/lib/booking-flow";
 
@@ -15,6 +15,7 @@ const schema = z.object({
   lat: z.number().nullable().optional(),
   lng: z.number().nullable().optional(),
   notes: z.string().optional(),
+  city: z.string().optional(),
 });
 
 const bookingInclude = {
@@ -59,11 +60,13 @@ export async function POST(request: Request) {
   if (!service) return NextResponse.json({ error: "That service is not available." }, { status: 404 });
   if (!bike) return NextResponse.json({ error: "Add or choose one of your bikes." }, { status: 400 });
 
+  const city = cityFromQuery(parsed.data.city);
   const price = estimatePrice({
     basePrice: service.basePrice,
     mode: parsed.data.mode,
     bikeYear: bike.year,
     fees: getSettings(),
+    priceIndex: city?.priceIndex ?? 1,
   });
 
   const booking = await prisma.booking.create({

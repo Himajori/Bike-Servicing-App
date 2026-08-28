@@ -7,5 +7,7 @@ export interface ServiceCatalogItem {
   description: string;
   category: string;
   basePrice: number;
+  priceMin: number;
+  priceMax: number;
   durationMin: number;
 }
