@@ -115,7 +115,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="font-heading text-3xl sm:text-4xl">See how it works</h2>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Tap a step. The panel on the right follows you — same flow as booking on bikeserviceapp.pl.
+            Tap a step here, or press the chat icon in the corner and ask “How it works”.
           </p>
           <div className="mt-8">
             <HowItWorks />
