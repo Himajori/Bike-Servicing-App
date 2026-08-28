@@ -61,19 +61,20 @@ export default function MarketPage() {
 
   async function onSell(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setPending(true);
     setError(null);
     setMessage(null);
     try {
-      const response = await fetch("/api/market", { method: "POST", body: new FormData(event.currentTarget) });
+      const response = await fetch("/api/market", { method: "POST", body: new FormData(form) });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(data.error || "Could not list the bike.");
-      event.currentTarget.reset();
+      form.reset();
       setMessage("Listed. Buyers can search it now.");
       setTab("buy");
-      await load("", "");
       setQuery("");
       setCity("");
+      await load("", "");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not list the bike.");
     } finally {
