@@ -4,7 +4,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { LocateFixed, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SERVICE_CITIES, type ServiceCity } from "@/lib/maps";
+import { SERVICE_CITIES, citiesMatching, type ServiceCity } from "@/lib/maps";
 
 export function CitySearch({
   onSelect,
@@ -20,16 +20,7 @@ export function CitySearch({
   const [query, setQuery] = useState(initial);
   const [open, setOpen] = useState(false);
 
-  const matches = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return SERVICE_CITIES;
-    return SERVICE_CITIES.filter(
-      (city) =>
-        city.name.toLowerCase().includes(q) ||
-        city.country.toLowerCase().includes(q) ||
-        city.countryCode.toLowerCase().includes(q),
-    );
-  }, [query]);
+  const matches = useMemo(() => citiesMatching(query), [query]);
 
   function pick(city: ServiceCity) {
     setQuery(city.name);

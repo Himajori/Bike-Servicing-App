@@ -202,10 +202,10 @@ export default function LandingPage() {
             Demo accounts: alex@rideready.test · maya@rideready.test · admin@rideready.test
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button render={<Link href="/register" />} size="lg">
+            <Button render={<Link href="/register" />} size="lg" nativeButton={false}>
               Create an account
             </Button>
-            <Button render={<Link href="/login" />} size="lg" variant="secondary">
+            <Button render={<Link href="/login" />} size="lg" variant="secondary" nativeButton={false}>
               Log in
             </Button>
           </div>

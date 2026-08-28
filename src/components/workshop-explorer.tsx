@@ -154,7 +154,7 @@ export function WorkshopExplorer({
         {selected && "address" in selected ? (
           <p className="text-sm text-muted-foreground">Selected workshop: {selected.name}</p>
         ) : null}
-        <Button render={<Link href="/register" />} className="w-full" size="lg">
+        <Button render={<Link href="/register" />} className="w-full" size="lg" nativeButton={false}>
           Book a repair in {city.name}
         </Button>
       </div>

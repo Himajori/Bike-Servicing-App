@@ -22,6 +22,16 @@ export function boundsAround(center: { lat: number; lng: number }, km = 8): MapB
   };
 }
 
+export function foldAscii(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ł/gi, "l")
+    .replace(/đ/gi, "d")
+    .replace(/ø/gi, "o")
+    .toLowerCase();
+}
+
 export function pointInBounds(point: { lat: number; lng: number }, bounds: MapBounds) {
   return (
     point.lat >= bounds.minLat &&

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { nearestCity, SERVICE_CITIES } from "@/lib/maps";
+import { cityMatchesQuery, nearestCity, SERVICE_CITIES } from "@/lib/maps";
 import { haversineKm } from "@/lib/geo";
 
 const schema = z.object({
@@ -37,9 +37,7 @@ export async function POST(request: Request) {
       const named = geo.address?.city || geo.address?.town || geo.address?.village;
       if (named) {
         const match = SERVICE_CITIES.find(
-          (city) =>
-            city.name.toLowerCase() === named.toLowerCase() ||
-            named.toLowerCase().includes(city.name.toLowerCase()),
+          (city) => cityMatchesQuery(city, named) || named.toLowerCase().includes(city.name.toLowerCase()),
         );
         if (match) {
           return NextResponse.json({

@@ -1,4 +1,4 @@
-import { boundsAround } from "./geo";
+import { boundsAround, foldAscii } from "./geo";
 
 export type MapBounds = {
   minLat: number;
@@ -28,6 +28,7 @@ export type ServiceCity = {
   center: { lat: number; lng: number };
   bounds: MapBounds;
   workshops: { id: string; name: string; address: string; lat: number; lng: number; services: string }[];
+  aliases?: string[];
 };
 
 function city(input: Omit<ServiceCity, "bounds"> & { radiusKm?: number }): ServiceCity {
@@ -99,6 +100,7 @@ export const SERVICE_CITIES: ServiceCity[] = [
     priceIndex: 0.95,
     currency: "EUR",
     center: { lat: 41.3231, lng: 19.4414 },
+    aliases: ["Durres", "Durazzo"],
     workshops: [
       {
         id: "road-bike-team",
@@ -121,6 +123,7 @@ export const SERVICE_CITIES: ServiceCity[] = [
     currency: "EUR",
     center: { lat: 42.0683, lng: 19.5126 },
     radiusKm: 6,
+    aliases: ["Shkoder", "Shkodra", "Scutari"],
     workshops: [
       {
         id: "biciklist-center",
@@ -142,6 +145,7 @@ export const SERVICE_CITIES: ServiceCity[] = [
     priceIndex: 0.95,
     currency: "EUR",
     center: { lat: 40.4667, lng: 19.4897 },
+    aliases: ["Vlore", "Vlora"],
     workshops: [
       {
         id: "vlore-riparim",
@@ -603,6 +607,21 @@ export const SAVED_PLACES = [
 export function cityBySlug(slug: string | null | undefined) {
   if (!slug) return undefined;
   return SERVICE_CITIES.find((item) => item.slug === slug.toLowerCase());
+}
+
+export function cityMatchesQuery(city: ServiceCity, query: string) {
+  const q = foldAscii(query);
+  if (!q) return true;
+  const haystack = [city.slug, city.name, city.country, city.countryCode, ...(city.aliases ?? [])]
+    .map(foldAscii)
+    .join(" ");
+  return haystack.includes(q);
+}
+
+export function citiesMatching(query: string) {
+  const q = query.trim();
+  if (!q) return SERVICE_CITIES;
+  return SERVICE_CITIES.filter((city) => cityMatchesQuery(city, q));
 }
 
 export function nearestCity(lat: number, lng: number) {

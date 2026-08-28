@@ -36,10 +36,10 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          <Button render={<Link href="/login" />} size="sm" variant="secondary">
+          <Button render={<Link href="/login" />} size="sm" variant="secondary" nativeButton={false}>
             Log in
           </Button>
-          <Button render={<Link href="/register" />} size="sm">
+          <Button render={<Link href="/register" />} size="sm" nativeButton={false}>
             Book a repair
           </Button>
         </nav>
@@ -59,7 +59,7 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          <Button render={<Link href="/login" />} className="w-full">
+          <Button render={<Link href="/login" />} className="w-full" nativeButton={false}>
             Log in
           </Button>
         </div>
