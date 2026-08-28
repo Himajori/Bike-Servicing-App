@@ -9,7 +9,6 @@ import { RepairCounter } from "@/components/repair-counter";
 import { HowItWorks } from "@/components/how-it-works";
 import { WorkshopExplorer } from "@/components/workshop-explorer";
 import { SiteHeader } from "@/components/site-header";
-import { LandingCommits } from "@/components/commits-menu";
 import { api } from "@/lib/api";
 import { SERVICE_CITIES, type ServiceCity } from "@/lib/maps";
 
@@ -141,16 +140,6 @@ export default function LandingPage() {
           <div className="mt-8">
             <WorkshopExplorer city={city} mechanics={mechanics} />
           </div>
-        </div>
-      </section>
-
-      <section id="updates" className="bg-[oklch(0.94_0.016_80)] py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="font-heading text-3xl sm:text-4xl">Last commits</h2>
-          <p className="mt-2 text-muted-foreground">
-            What shipped recently — same list as the Updates menu in the header.
-          </p>
-          <LandingCommits />
         </div>
       </section>
 

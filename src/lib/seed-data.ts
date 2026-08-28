@@ -17,6 +17,86 @@ export async function seedIfEmpty() {
       ],
     });
   }
+  if ((await prisma.bikeListing.count()) === 0) {
+    await prisma.bikeListing.createMany({
+      data: [
+        {
+          brand: "Trek",
+          model: "Domane AL 4",
+          year: 2022,
+          color: "Juniper",
+          city: "Austin",
+          price: 980,
+          sellerName: "Alex Rivera",
+          sellerEmail: "alex@rideready.test",
+          sellerPhone: "+1 512 555 0148",
+          imageUrl:
+            "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=1200&q=80",
+          description:
+            "Endurance road bike, 56cm. Full service last month, new chain and cassette. Ready to ride or commute.",
+        },
+        {
+          brand: "Specialized",
+          model: "Turbo Vado 4.0",
+          year: 2023,
+          color: "Cast Black",
+          city: "Austin",
+          price: 2400,
+          sellerName: "Alex Rivera",
+          sellerEmail: "alex@rideready.test",
+          sellerPhone: "+1 512 555 0148",
+          imageUrl:
+            "https://images.unsplash.com/photo-1571068316344-75bc76e25f54?auto=format&fit=crop&w=1200&q=80",
+          description:
+            "E-bike with ~1,200 km. Battery holds a full charge. Includes rear rack and fenders. Pickup in East Austin.",
+        },
+        {
+          brand: "Cannondale",
+          model: "SuperSix EVO",
+          year: 2021,
+          color: "Black",
+          city: "Dallas",
+          price: 1650,
+          sellerName: "Maya Chen",
+          sellerEmail: "maya@rideready.test",
+          sellerPhone: "+1 512 555 0190",
+          imageUrl:
+            "https://images.unsplash.com/photo-1511994298241-608e28f6f2ce?auto=format&fit=crop&w=1200&q=80",
+          description:
+            "Carbon race bike, 54cm. Light scratches on the drive-side chainstay. Wheels recently trued.",
+        },
+        {
+          brand: "Kross",
+          model: "Trans Siberian",
+          year: 2020,
+          color: "Green",
+          city: "Warszawa",
+          price: 420,
+          sellerName: "Adam Nowak",
+          sellerEmail: "adam@example.test",
+          sellerPhone: "+48 600 100 200",
+          imageUrl:
+            "https://images.unsplash.com/photo-1532298229144-0ec71c6b3ace?auto=format&fit=crop&w=1200&q=80",
+          description:
+            "Touring bike with racks. Good for city and weekend trips. Some cable stretch; priced accordingly.",
+        },
+        {
+          brand: "Romet",
+          model: "Wagant 1",
+          year: 2019,
+          color: "Red",
+          city: "Kraków",
+          price: 310,
+          sellerName: "Ola Wiśniewska",
+          sellerEmail: "ola@example.test",
+          imageUrl:
+            "https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?auto=format&fit=crop&w=1200&q=80",
+          description:
+            "City hybrid, recently cleaned and lubed. Comfortable upright position. Can deliver in Kraków.",
+        },
+      ],
+    });
+  }
 }
 
 export async function seedDatabase() {

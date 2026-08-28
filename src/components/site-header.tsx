@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CommitsMenu } from "@/components/commits-menu";
+import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#workshops", label: "Workshops" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#workshops", label: "Workshops" },
+  { href: "/market", label: "Bikes" },
   { href: "/login", label: "Mechanic zone" },
 ];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-30 border-b border-white/10 bg-[oklch(0.22_0.03_50)]/90 text-[oklch(0.97_0.01_80)] backdrop-blur">
@@ -23,11 +26,17 @@ export function SiteHeader() {
         </Link>
         <nav className="hidden items-center gap-6 text-sm md:flex">
           {links.map((link) => (
-            <Link key={link.label} href={link.href} className="text-white/80 hover:text-primary">
+            <Link
+              key={link.label}
+              href={link.href}
+              className={cn(
+                "text-white/80 hover:text-primary",
+                pathname === link.href && "text-primary",
+              )}
+            >
               {link.label}
             </Link>
           ))}
-          <CommitsMenu />
           <Button render={<Link href="/login" />} size="sm" variant="secondary">
             Log in
           </Button>
@@ -51,7 +60,6 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          <CommitsMenu />
           <Button render={<Link href="/login" />} className="w-full">
             Log in
           </Button>

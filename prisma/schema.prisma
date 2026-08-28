@@ -108,6 +108,28 @@ model Bike {
   bookings Booking[]
 }
 
+model BikeListing {
+  id          String         @id @default(cuid())
+  brand       String
+  model       String
+  year        Int?
+  color       String?
+  description String
+  price       Float
+  city        String
+  imageUrl    String?
+  sellerName  String
+  sellerEmail String
+  sellerPhone String?
+  status      ListingStatus  @default(FOR_SALE)
+  createdAt   DateTime       @default(now())
+}
+
+enum ListingStatus {
+  FOR_SALE
+  SOLD
+}
+
 model Service {
   id          String @id @default(cuid())
   name        String
