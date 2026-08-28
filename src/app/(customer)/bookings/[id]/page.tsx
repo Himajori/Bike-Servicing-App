@@ -173,6 +173,14 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
         <ServiceMap
           center={{ lat: booking.lat ?? CITY.center.lat, lng: booking.lng ?? CITY.center.lng }}
           markers={markers}
+          selectedId={
+            booking.status === "EN_ROUTE" && booking.mechanic
+              ? "mech"
+              : booking.lat
+                ? "you"
+                : "shop"
+          }
+          showLegend
           className="h-48"
         />
         <p className="mt-2 text-xs text-muted-foreground">{booking.address}</p>

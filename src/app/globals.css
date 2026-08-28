@@ -96,3 +96,35 @@
     font-family: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
   }
 }
+
+@keyframes pin-pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+@keyframes bike-roll {
+  from { transform: translateX(-12%); }
+  to { transform: translateX(12%); }
+}
+
+@keyframes hero-grid {
+  from { background-position: 0 0; }
+  to { background-position: 48px 48px; }
+}
+
+.pin-pulse::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  background: currentColor;
+  animation: pin-pulse 1.6s ease-out infinite;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: hero-grid 18s linear infinite;
+}

@@ -13,9 +13,9 @@ const heading = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "BikeApp — Bike servicing",
+  title: "BikeService — book a bike repair",
   description:
-    "Book doorstep or pickup-and-drop bike service, track the job, pay, and review your mechanic.",
+    "Repair your bike without leaving home. Find a workshop, see prices, and book doorstep or pickup & drop.",
 };
 
 export const viewport: Viewport = {

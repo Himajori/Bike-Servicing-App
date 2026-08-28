@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { formatMoney } from "@/lib/pricing";
 import { NotificationInbox } from "@/components/notification-inbox";
+import { BookingsTrend, KpiCard, StatusDonut } from "@/components/admin-charts";
 
 type Stats = {
   totalUsers: number;
@@ -11,6 +12,7 @@ type Stats = {
   totalRevenue: number;
   activeMechanics: number;
   byStatus: Record<string, number>;
+  week: { day: string; count: number }[];
   recent: {
     id: string;
     status: string;
@@ -30,37 +32,33 @@ export default function AdminHome() {
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load dashboard."));
   }, []);
 
-  const cards = [
-    ["Total users", stats?.totalUsers ?? "—"],
-    ["Total bookings", stats?.totalBookings ?? "—"],
-    ["Revenue", stats ? formatMoney(stats.totalRevenue) : "—"],
-    ["Active mechanics", stats?.activeMechanics ?? "—"],
-  ];
-
   return (
     <main>
       <h1 className="font-heading text-3xl">Dashboard</h1>
       <p className="mt-1 text-sm text-muted-foreground">Platform overview for BikeService.</p>
       {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map(([label, value]) => (
-          <article key={label} className="rounded-2xl border bg-card p-4">
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="mt-1 text-2xl font-semibold">{value}</p>
-          </article>
-        ))}
+        <KpiCard label="Total users" value={String(stats?.totalUsers ?? "—")} />
+        <KpiCard label="Total bookings" value={String(stats?.totalBookings ?? "—")} />
+        <KpiCard label="Revenue" value={stats ? formatMoney(stats.totalRevenue) : "—"} />
+        <KpiCard label="Active mechanics" value={String(stats?.activeMechanics ?? "—")} />
       </div>
-      <section className="mt-8">
-        <h2 className="font-medium">Bookings by status</h2>
-        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-          {Object.entries(stats?.byStatus ?? {}).map(([status, count]) => (
-            <li key={status} className="flex justify-between rounded-xl border bg-card px-3 py-2 text-sm">
-              <span>{status}</span>
-              <span>{count}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <section className="rounded-2xl border bg-card p-4">
+          <h2 className="font-medium">Bookings overview</h2>
+          <p className="text-sm text-muted-foreground">Last 7 days — hover a point.</p>
+          <div className="mt-3">
+            <BookingsTrend days={stats?.week ?? []} />
+          </div>
+        </section>
+        <section className="rounded-2xl border bg-card p-4">
+          <h2 className="font-medium">Bookings by status</h2>
+          <p className="text-sm text-muted-foreground">Hover a slice label to highlight it.</p>
+          <div className="mt-3">
+            <StatusDonut byStatus={stats?.byStatus ?? {}} />
+          </div>
+        </section>
+      </div>
       <section className="mt-8">
         <h2 className="font-medium">Recent bookings</h2>
         <div className="mt-3 overflow-x-auto rounded-2xl border bg-card">

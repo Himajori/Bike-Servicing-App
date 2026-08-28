@@ -243,6 +243,9 @@ export default function BookPage({ params }: { params: Promise<{ serviceId: stri
             <ServiceMap
               center={{ lat: place.lat, lng: place.lng }}
               markers={markers}
+              selectedId="pin"
+              onSelect={() => undefined}
+              showLegend
               onPick={(lat, lng) =>
                 setPlace({
                   label: "Dropped pin",
